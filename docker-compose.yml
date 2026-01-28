@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  dzt-proxy:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./dids:/app/dids:ro
+      - ./tools:/app/tools:ro
+      - .:/app
+
+  mcp-mock:
+    build: ./mcp_mock
+    ports:
+      - "8081:8080"
+
+  did-resolver:
+    image: nginx:alpine
+    ports:
+      - "8082:80"
+    volumes:
+      - ./dids:/usr/share/nginx/html/.well-known:ro
