@@ -2,14 +2,14 @@
 Dcentralized Zero Trust Proxy for MCP (Model Context Protocol)
 
 ## Quick Start
-```bash
+````bash
 pip install -r requirements.txt
 docker-compose up -d  # MCP mock + DID server
 python app.py  # Dev proxy
 
 ## Architecture 
 
-```mermaid
+````mermaid
 sequenceDiagram
     participant A as MCP Agent
     participant P as DZT Proxy
@@ -26,4 +26,5 @@ sequenceDiagram
         P-->>A: Response
     else FAIL
         P-->>A: 403 Forbidden
-    end ```
+    end
+````
