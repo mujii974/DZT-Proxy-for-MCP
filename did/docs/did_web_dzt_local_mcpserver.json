@@ -1,0 +1,28 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    "https://w3id.org/security/suites/secp256k1-2019/v1"
+  ],
+  "id": "did:web:dzt.local:mcpserver",
+  "verificationMethod": [
+    {
+      "id": "did:web:dzt.local:mcpserver#key-1",
+      "type": "EcdsaSecp256k1VerificationKey2019",
+      "controller": "did:web:dzt.local:mcpserver",
+      "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEL0TsKmC78dqyR7aRt+A4G2Do8imIVhR6\nM+eIbUTakLfVh6Ijn6ZuOHf3QJc3H03kdpfEuXad4xsV+SpGWMzBsw==\n-----END PUBLIC KEY-----\n"
+    }
+  ],
+  "authentication": [
+    "did:web:dzt.local:mcpserver#key-1"
+  ],
+  "assertionMethod": [
+    "did:web:dzt.local:mcpserver#key-1"
+  ],
+  "service": [
+    {
+      "id": "did:web:dzt.local:mcpserver#mcp-endpoint",
+      "type": "MCPServer",
+      "serviceEndpoint": "http://127.0.0.1:8001"
+    }
+  ]
+}

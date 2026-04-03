@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets — NEVER commit
+.env
+mytoken.env
+token.txt
+*.pem
+
+# Runtime artifacts
+nonces.db
+server_nonces.db
+*.db
+logs/
+
+# Eval outputs (regenerated per run)
+eval/results/*.json
+eval/out/
+
+# Attacker temp files
+attacker/.saved_*
+attacker/saved_*
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+token.txt
+nonces.db

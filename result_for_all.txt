@@ -1,0 +1,461 @@
+============================================================
+         DZT Proxy -- Evaluation Menu
+  ============================================================
+
+   ATTACK SIMULATION
+   1)  Local MCP  -- WITHOUT Proxy  (no security)
+   2)  Local MCP  -- WITH Proxy     (DZT secured)
+   3)  GitHub MCP -- WITHOUT Proxy  (direct, PAT only)
+   4)  GitHub MCP -- WITH Proxy     (DZT secured)
+
+   EVALUATION
+   5)  Benign 100 Calls  (false positive rate)
+   6)  Latency Benchmark (direct vs proxy overhead)
+   7)  Generate Tables   (Table 2 + Table 3 for report)
+
+   8)  Exit
+
+  ============================================================
+
+  Select option [1-8]: 1
+
+  -- Attacking Local MCP Server WITHOUT Proxy --
+  [+] Starting local MCP server (no security) on port 8001...
+  [~] Waiting for Local MCP (8001)...            .ready
+
+
+================================================================================
+  LOCAL MCP — WITHOUT Proxy (No Security)
+================================================================================
+  Target: http://127.0.0.1:8001
+
+  Running 8 attacks...
+
+  Attack                                       Status  Result       Latency  Details
+  -------------------------------------------- ------  ----------  --------  ------------------------
+  Valid request (echo)                            200  ALLOWED          4ms  
+  No token (identity forge)                       200  ALLOWED          2ms  
+  RCE (run_cmd: whoami)                           200  ALLOWED          9ms  
+  Replay (1st request)                            200  ALLOWED          2ms  
+  Replay (2nd request — identical)                200  ALLOWED          2ms  
+  Tool poisoning (no hash check)                  200  ALLOWED          1ms  
+  Prompt injection (call run_cmd)                 200  BLOCKED          3ms  Command 'cat /etc/shadow' retu
+  Credential theft (read /etc/shadow)             500  BLOCKED          2ms  
+
+  ================================================================================
+  SUMMARY — LOCAL MCP — WITHOUT Proxy (No Security)
+  ================================================================================
+  Total attacks    : 8
+  Blocked          : 2
+  Allowed          : 6
+  Avg latency      : 3 ms
+  Accuracy         : 6/8 (75%)
+
+  No security -- ALL attacks succeeded
+  This is the vulnerable 'before DZT' baseline.
+  ================================================================================
+
+  Results saved: eval/results/attack_run_local_direct_1773792003.json
+
+
+  [-] Stopping servers...
+
+  Press Enter to return to menu...
+
+  ============================================================
+         DZT Proxy -- Evaluation Menu
+  ============================================================
+
+   ATTACK SIMULATION
+   1)  Local MCP  -- WITHOUT Proxy  (no security)
+   2)  Local MCP  -- WITH Proxy     (DZT secured)
+   3)  GitHub MCP -- WITHOUT Proxy  (direct, PAT only)
+   4)  GitHub MCP -- WITH Proxy     (DZT secured)
+
+   EVALUATION
+   5)  Benign 100 Calls  (false positive rate)
+   6)  Latency Benchmark (direct vs proxy overhead)
+   7)  Generate Tables   (Table 2 + Table 3 for report)
+
+   8)  Exit
+
+  ============================================================
+
+  Select option [1-8]: 2
+
+  -- Attacking Local MCP Server WITH DZT Proxy --
+  [+] Starting local MCP server (no security) on port 8001...
+  [+] Starting DZT Proxy (secure, local) on port 8000...
+  [~] Waiting for Local MCP (8001)...            .ready
+  [~] Waiting for DZT Proxy (8000)...            ready
+
+
+================================================================================
+  LOCAL MCP — WITH DZT Proxy (Secured)
+================================================================================
+  Target: http://127.0.0.1:8000 → http://127.0.0.1:8001
+
+  Running 13 attacks...
+
+  Attack                                       Status  Result       Latency  Details
+  -------------------------------------------- ------  ----------  --------  ------------------------
+  Valid request (echo)                            200  ALLOWED        106ms  
+  No token (identity forge)                       401  BLOCKED          2ms  token_presence
+  RCE (run_cmd: whoami)                           403  BLOCKED          6ms  policy_enforcement
+  Replay (1st use)                                200  ALLOWED         60ms  
+  Replay (2nd use — same JWT)                     401  BLOCKED          3ms  replay_protection
+  Tool poisoning (bad hash)                       401  BLOCKED         31ms  tool_integrity
+  Wrong audience                                  401  BLOCKED          2ms  audience_validation
+  Expired token                                   401  BLOCKED          2ms  token_expiry
+  Unknown issuer DID                              401  BLOCKED       5029ms  did_resolution
+  Prompt injection (tool mismatch)                401  BLOCKED          4ms  tool_binding
+  Missing tool_hash in JWT                        401  BLOCKED         12ms  tool_integrity
+  Missing jti (nonce)                             401  BLOCKED          3ms  jwt_verification
+  Credential theft (read /etc/shadow)             403  BLOCKED          6ms  policy_enforcement
+
+  ================================================================================
+  SUMMARY — LOCAL MCP — WITH DZT Proxy (Secured)
+  ================================================================================
+  Total attacks    : 13
+  Blocked          : 11
+  Allowed          : 2
+  Avg latency      : 405 ms
+  Accuracy         : 13/13 (100%)
+
+  DZT Proxy blocked all attacks, allowed valid requests
+  ================================================================================
+
+  Results saved: eval/results/attack_run_local_proxy_1773792014.json
+
+
+  [-] Stopping servers...
+
+  Press Enter to return to menu...
+
+  ============================================================
+         DZT Proxy -- Evaluation Menu
+  ============================================================
+
+   ATTACK SIMULATION
+   1)  Local MCP  -- WITHOUT Proxy  (no security)
+   2)  Local MCP  -- WITH Proxy     (DZT secured)
+   3)  GitHub MCP -- WITHOUT Proxy  (direct, PAT only)
+   4)  GitHub MCP -- WITH Proxy     (DZT secured)
+
+   EVALUATION
+   5)  Benign 100 Calls  (false positive rate)
+   6)  Latency Benchmark (direct vs proxy overhead)
+   7)  Generate Tables   (Table 2 + Table 3 for report)
+
+   8)  Exit
+
+  ============================================================
+
+  Select option [1-8]: 3
+
+  -- Attacking GitHub MCP Server WITHOUT Proxy --
+
+
+================================================================================
+  GITHUB MCP — WITHOUT Proxy (PAT Only)
+================================================================================
+  Target: https://api.githubcopilot.com/mcp/
+  Verifying GitHub PAT... OK
+
+  Running 7 attacks...
+
+  Attack                                       Status  Result       Latency  Details
+  -------------------------------------------- ------  ----------  --------  ------------------------
+  Valid request (get_me)                          200  ALLOWED        820ms  
+  Replay (1st request)                            200  ALLOWED        827ms  
+  Replay (2nd request — identical)                200  ALLOWED        780ms  
+  No identity binding (PAT = full access)         200  ALLOWED        804ms  
+  No tool integrity check (no hash)               200  ALLOWED        789ms  
+  No per-agent policy (any tool)                  200  ALLOWED        796ms  
+  No authentication (no PAT)                      401  BLOCKED        819ms  
+
+  ================================================================================
+  SUMMARY — GITHUB MCP — WITHOUT Proxy (PAT Only)
+  ================================================================================
+  Total attacks    : 7
+  Blocked          : 1
+  Allowed          : 6
+  Avg latency      : 805 ms
+  Accuracy         : 7/7 (100%)
+
+  GitHub accepted 6 requests with no DID/JWT/replay checks
+  GitHub only has PAT auth -- no zero-trust protections:
+    - No replay protection (same request accepted multiple times)
+    - No per-agent identity (anyone with PAT = full access)
+    - No tool integrity verification (no hash checks)
+    - No policy enforcement (PAT grants access to all tools)
+  ================================================================================
+
+  Results saved: eval/results/attack_run_github_direct_1773792024.json
+
+
+  Press Enter to return to menu...
+
+  ============================================================
+         DZT Proxy -- Evaluation Menu
+  ============================================================
+
+   ATTACK SIMULATION
+   1)  Local MCP  -- WITHOUT Proxy  (no security)
+   2)  Local MCP  -- WITH Proxy     (DZT secured)
+   3)  GitHub MCP -- WITHOUT Proxy  (direct, PAT only)
+   4)  GitHub MCP -- WITH Proxy     (DZT secured)
+
+   EVALUATION
+   5)  Benign 100 Calls  (false positive rate)
+   6)  Latency Benchmark (direct vs proxy overhead)
+   7)  Generate Tables   (Table 2 + Table 3 for report)
+
+   8)  Exit
+
+  ============================================================
+
+  Select option [1-8]: 4
+
+  -- Attacking GitHub MCP Server WITH DZT Proxy --
+  [+] Starting DZT Proxy (secure, GitHub MCP) on port 8000...
+  [~] Waiting for DZT Proxy (8000)...            .ready
+
+
+================================================================================
+  GITHUB MCP — WITH DZT Proxy (Secured)
+================================================================================
+  Target: http://127.0.0.1:8000 → https://api.githubcopilot.com/mcp/
+  Verifying GitHub PAT... OK
+
+  Running 10 attacks...
+
+  Attack                                       Status  Result       Latency  Details
+  -------------------------------------------- ------  ----------  --------  ------------------------
+  Valid request (get_me)                          200  ALLOWED       1876ms  
+  Replay (1st use)                                200  ALLOWED        946ms  
+  Replay (2nd use — same JWT)                     401  BLOCKED          7ms  replay_protection
+  No token (identity forge)                       401  BLOCKED          4ms  token_presence
+  Tool poisoning (bad hash)                       401  BLOCKED         15ms  tool_integrity
+  Wrong audience                                  401  BLOCKED          6ms  audience_validation
+  Expired token                                   401  BLOCKED          5ms  token_expiry
+  Unknown issuer DID                              401  BLOCKED       5062ms  did_resolution
+  Missing tool_hash                               401  BLOCKED         16ms  tool_integrity
+  Missing jti (nonce)                             401  BLOCKED          6ms  jwt_verification
+
+  ================================================================================
+  SUMMARY — GITHUB MCP — WITH DZT Proxy (Secured)
+  ================================================================================
+  Total attacks    : 10
+  Blocked          : 8
+  Allowed          : 2
+  Avg latency      : 794 ms
+  Accuracy         : 10/10 (100%)
+
+  DZT Proxy blocked all attacks before reaching GitHub
+  Compare with Option 3 to see what the proxy prevents.
+  ================================================================================
+
+  Results saved: eval/results/attack_run_github_proxy_1773792047.json
+
+
+  [-] Stopping servers...
+
+  Press Enter to return to menu...
+
+  ============================================================
+         DZT Proxy -- Evaluation Menu
+  ============================================================
+
+   ATTACK SIMULATION
+   1)  Local MCP  -- WITHOUT Proxy  (no security)
+   2)  Local MCP  -- WITH Proxy     (DZT secured)
+   3)  GitHub MCP -- WITHOUT Proxy  (direct, PAT only)
+   4)  GitHub MCP -- WITH Proxy     (DZT secured)
+
+   EVALUATION
+   5)  Benign 100 Calls  (false positive rate)
+   6)  Latency Benchmark (direct vs proxy overhead)
+   7)  Generate Tables   (Table 2 + Table 3 for report)
+
+   8)  Exit
+
+  ============================================================
+
+  Select option [1-8]: 5
+
+  -- Benign Workload Test (100 calls, false positive rate) --
+  [+] Starting local MCP server (no security) on port 8001...
+  [+] Starting DZT Proxy (secure, local) on port 8000...
+  [~] Waiting for Local MCP (8001)...            .ready
+  [~] Waiting for DZT Proxy (8000)...            ready
+
+
+======================================================================
+  BENIGN WORKLOAD TEST -- False Positive Rate
+======================================================================
+  Proxy  : http://127.0.0.1:8000
+  Tool   : echo
+  Calls  : 100
+  Mode   : local
+
+  Running 100 benign calls...
+
+    20/100 completed...
+    40/100 completed...
+    60/100 completed...
+    80/100 completed...
+    100/100 completed...
+
+======================================================================
+  RESULTS
+======================================================================
+  Total calls      : 100
+  Succeeded        : 100
+  Blocked (FP)     : 0
+  False positive % : 0.00%
+  Success rate %   : 100.00%
+  Avg latency      : 62.0 ms
+  P95 latency      : 80.8 ms
+  Min latency      : 54.2 ms
+  Max latency      : 104.8 ms
+  Status codes     : {200: 100}
+
+  RESULT: False positive rate (0.00%) is below 1% target
+======================================================================
+
+  Results saved: eval/results/benign_test_1773792063.json
+
+
+  [-] Stopping servers...
+
+  Press Enter to return to menu...
+
+  ============================================================
+         DZT Proxy -- Evaluation Menu
+  ============================================================
+
+   ATTACK SIMULATION
+   1)  Local MCP  -- WITHOUT Proxy  (no security)
+   2)  Local MCP  -- WITH Proxy     (DZT secured)
+   3)  GitHub MCP -- WITHOUT Proxy  (direct, PAT only)
+   4)  GitHub MCP -- WITH Proxy     (DZT secured)
+
+   EVALUATION
+   5)  Benign 100 Calls  (false positive rate)
+   6)  Latency Benchmark (direct vs proxy overhead)
+   7)  Generate Tables   (Table 2 + Table 3 for report)
+
+   8)  Exit
+
+  ============================================================
+
+  Select option [1-8]: 6
+
+  -- Latency Benchmark (direct vs proxy overhead) --
+  [+] Starting local MCP server (no security) on port 8001...
+  [+] Starting DZT Proxy (secure, local) on port 8000...
+  [~] Waiting for Local MCP (8001)...            .ready
+  [~] Waiting for DZT Proxy (8000)...            ready
+
+
+======================================================================
+  LATENCY BENCHMARK -- Direct vs Proxy
+======================================================================
+  Direct   : http://127.0.0.1:8001
+  Proxy    : http://127.0.0.1:8000
+  Tool     : echo
+  Calls    : 30 per target (+ 3 warmup)
+
+  Warming up (3 calls each)...
+  Measuring direct latency (30 calls)...
+  Measuring proxy latency (30 calls)...
+
+======================================================================
+  RESULTS
+======================================================================
+
+  Metric                        Direct      Proxy   Overhead
+  ------------------------- ---------- ---------- ----------
+  Avg latency (ms)                 3.6       64.8      +61.2
+  P95 latency (ms)                 7.0       88.5      +81.5
+  Min latency (ms)                 1.7       55.4           
+  Max latency (ms)                 8.2      111.2           
+  Success rate                     30/30        30/30           
+
+  RESULT: Average overhead (+61.2 ms) EXCEEDS 50ms target
+======================================================================
+
+  Results saved: eval/results/latency_benchmark_1773792137.json
+
+
+  [-] Stopping servers...
+
+  Press Enter to return to menu...
+
+  ============================================================
+         DZT Proxy -- Evaluation Menu
+  ============================================================
+
+   ATTACK SIMULATION
+   1)  Local MCP  -- WITHOUT Proxy  (no security)
+   2)  Local MCP  -- WITH Proxy     (DZT secured)
+   3)  GitHub MCP -- WITHOUT Proxy  (direct, PAT only)
+   4)  GitHub MCP -- WITH Proxy     (DZT secured)
+
+   EVALUATION
+   5)  Benign 100 Calls  (false positive rate)
+   6)  Latency Benchmark (direct vs proxy overhead)
+   7)  Generate Tables   (Table 2 + Table 3 for report)
+
+   8)  Exit
+
+  ============================================================
+
+  Select option [1-8]: 7
+
+  -- Generating Table 2 + Table 3 from saved results --
+
+
+==============================================================================
+  CAPSTONE TABLE GENERATOR
+==============================================================================
+  Sources:
+    Direct attacks : eval/results/attack_run_local_direct_1773792003.json
+    Proxy attacks  : eval/results/attack_run_local_proxy_1773792014.json
+    Benign test    : eval/results/benign_test_1773792063.json
+    Latency bench  : eval/results/latency_benchmark_1773792137.json
+
+TABLE 2 -- Attack Success Rate Evaluation
+==============================================================================
+
+  Attack Type              Without Proxy      With Proxy  Notes
+  ---------------------- --------------- ---------------  --------------------
+  Prompt Injection             50% (1/2)        0% (0/4)  Blocked by DZT
+  Tool Poisoning              100% (1/1)        0% (0/1)  Blocked by DZT
+  Session Hijacking           100% (1/1)        0% (0/4)  Blocked by DZT
+  RCE                         100% (1/1)        0% (0/1)  Blocked by DZT
+  Credential Theft              0% (0/1)        0% (0/1)  Blocked by DZT
+  ---------------------- --------------- ---------------  --------------------
+
+  Without proxy: 4/6 attacks succeeded (no security)
+  With proxy:    11/11 attacks blocked by DZT
+
+
+TABLE 3 -- Performance and Accuracy Metrics
+==============================================================================
+
+  Metric                            Baseline MCP       MCP + DZT           Notes
+  ------------------------------ --------------- --------------- ---------------
+  Avg Latency (ms)                           3.6            64.8        +61.2 ms
+  P95 Latency (ms)                           7.0            88.5        +81.5 ms
+  False Positive Rate                        N/A            0.0%  over 100 calls
+  False Negative Rate                        N/A            0.0%                
+  Attack Prevention Rate                      0%          100.0%   11/11 blocked
+  ------------------------------ --------------- --------------- ---------------
+
+  Tables saved: eval/results/capstone_tables.txt
+
+
+  Press Enter to return to menu...
+

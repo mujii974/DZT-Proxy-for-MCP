@@ -1,0 +1,30 @@
+services:
+  mcp_server:
+    build:
+      context: .
+    command: uvicorn mcp_server.baseline:app --host 0.0.0.0 --port 8001
+    environment:
+      PYTHONPATH: /app
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+
+  dzt_proxy:
+    build:
+      context: .
+    command: uvicorn dzt_proxy.app:app --host 0.0.0.0 --port 8000
+    depends_on:
+      - mcp_server
+    environment:
+      PYTHONPATH: /app
+      DZT_MODE: ${DZT_MODE:-secure}
+      UPSTREAM_MODE: ${UPSTREAM_MODE:-local}
+      UPSTREAM_URL: http://mcp_server:8001/tools/call
+      AGENT_PRIVATE_KEY_PATH: ${AGENT_PRIVATE_KEY_PATH:-did/keys/agent1_private.pem}
+      AGENT_DID: ${AGENT_DID:-did:web:dzt.local:agent1}
+      SERVER_DID: ${SERVER_DID:-did:web:dzt.local:mcpserver}
+      GITHUB_PAT: ${GITHUB_PAT:-}
+      GITHUB_MCP_URL: ${GITHUB_MCP_URL:-https://api.githubcopilot.com/mcp/}
+    ports:
+      - "8000:8000"
+    restart: unless-stopped

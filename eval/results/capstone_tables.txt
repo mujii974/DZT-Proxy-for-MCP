@@ -1,0 +1,133 @@
+SECTION 5.4 -- Demonstration (Preliminary Experimental Results)
+==============================================================================
+
+  The following values are preliminary experimental results
+  (initial validation results), not final evaluation conclusions.
+  They are provided only to demonstrate feasibility of the DZT pipeline.
+
+  Local secured demonstration: ABR=100.0% (11/11 blocked), ASR=0.0%.
+  GitHub secured demonstration: ABR=100.0% (12/12 blocked), ASR=0.0%.
+
+  Final claims will be reported in Section 5.5 after full testing
+  and controlled direct-vs-proxy comparisons in real/GitHub conditions.
+
+SECTION 5.5 -- Evaluation
+==============================================================================
+
+  Metrics and Measurement Plan
+  - Security Effectiveness (Primary):
+      ASR = Successful attacks / Total attacks
+      ABR = Blocked attacks / Total attacks
+  - Accuracy (Support):
+      FP = Legitimate requests incorrectly blocked
+      FN = Attack requests not blocked
+  - Performance (Critical):
+      Average latency (ms), p95 latency (ms), and latency overhead vs baseline
+      Latency overhead = Proxy latency - Baseline MCP latency
+
+  Note: Accuracy/precision-only reporting is insufficient for a security
+  enforcement proxy; security effectiveness and latency must be included.
+
+  TABLE 5.5F -- Attack-to-Control Mapping (Appendix-Ready)
+  --------------------------------------------------------------------------
+  Attack Pattern                   Proxy Control          Reference         
+  --------------------------------------------------------------------------
+  Replay (2nd/3rd use)             Nonce replay_protection OWASP A07, NIST IA
+  No token / stolen PAT reuse      token_presence + DID bind OWASP A07, NIST IA
+  Tampered/malformed JWT           jwt_decode + signature_verification OWASP A08, NIST SI
+  Wrong audience / expired token   audience_validation + token_expiry OWASP A05/A07, NIST IA
+  Tool mismatch (claim vs request) tool_binding           OWASP A01, NIST AC
+  Tool poisoning (bad hash)        tool_integrity         OWASP A08, NIST SI-7
+  Policy bypass / unsafe tool      policy_enforcement     OWASP A01, NIST AC
+  Credential theft path access     policy_enforcement     OWASP A01, NIST AC
+  --------------------------------------------------------------------------
+  Note: mappings are grounded in observed blocked_by stages in attack-run JSON outputs.
+
+  TABLE 5.5A -- Security Effectiveness (Primary)
+  --------------------------------------------------------------------------
+  Environment   ASR w/o Proxy  ASR w/ Proxy  ABR w/ Proxy         Evidence
+  --------------------------------------------------------------------------
+  Local                 66.7%          0.0%        100.0%    11/11 blocked
+  GitHub                88.9%          0.0%        100.0%    12/12 blocked
+  --------------------------------------------------------------------------
+  Interpretation: ABR close to 100% and ASR close to 0% indicate strong
+  threat prevention for the evaluated attack set.
+
+  TABLE 5.5B -- Accuracy Metrics (Support)
+  --------------------------------------------------------------------------
+  Environment            FP    FP Rate           FN    FN Rate          Notes
+  --------------------------------------------------------------------------
+  Local               0/100       0.0%         0/11       0.0% FP from benign test
+  GitHub              0/100       0.0%         0/12       0.0% from benign + attacks
+  --------------------------------------------------------------------------
+  Interpretation: FP/FN are support metrics for reliability; they must be
+  interpreted together with ABR/ASR for security systems.
+
+  TABLE 5.5C -- Performance Metrics (Critical)
+  --------------------------------------------------------------------------
+  Environment  Avg Direct  Avg Proxy    Avg O/H P95 Direct  P95 Proxy    P95 O/H
+  --------------------------------------------------------------------------
+  Local               1.9       34.5       32.5        2.7       42.5       39.9
+  GitHub            845.1      807.5      -37.6      925.5      856.0      -69.5
+  --------------------------------------------------------------------------
+  Interpretation: latency overhead quantifies the operational cost of
+  zero-trust enforcement and should be evaluated against service SLOs.
+
+  TABLE 5.5D -- Advanced ML Classification Metrics (Supplementary)
+  --------------------------------------------------------------------------
+  Environment     Precision     Recall   F1 Score       TP       FP       FN       TN
+  --------------------------------------------------------------------------
+  Local              100.0%     100.0%     100.0%       11        0        0      102
+  GitHub             100.0%     100.0%     100.0%       12        0        0      102
+  --------------------------------------------------------------------------
+  Interpretation (ML Metrics):
+  - Precision: Of all requests blocked, what % were actual attacks? (not false alarms)
+  - Recall: Of all actual attacks, what % did we successfully catch?
+  - F1 Score: Harmonic mean of Precision & Recall (0-100, higher is better)
+  - TP/FP/FN/TN: Confusion matrix — raw counts for detailed analysis
+
+  Connection to Security Metrics:
+  - High Precision (close to 100%) + High Recall (close to 100%) + High F1 (close to 100%)
+    confirms that the proxy is both effective (catches attacks) and precise (no false alarms)
+
+  TABLE 5.5E -- Rule vs ML Comparison (Supplementary)
+  --------------------------------------------------------------------------
+  Environment  Setup             ASR      ABR    FP Rate       F1       Status
+  --------------------------------------------------------------------------
+  Local        Rule-only        0.0%   100.0%       0.0%   100.0%     measured
+  Local        Rule+ML           TBD      TBD        TBD      TBD  pending run
+  Local        ML-only           TBD      TBD        TBD      TBD  pending run
+  GitHub       Rule-only        0.0%   100.0%       0.0%   100.0%     measured
+  GitHub       Rule+ML           TBD      TBD        TBD      TBD  pending run
+  GitHub       ML-only           TBD      TBD        TBD      TBD  pending run
+  --------------------------------------------------------------------------
+  Interpretation: this table is a structured comparison scaffold for adding
+  a future learned model without changing the current security-first framework.
+
+  External reference anchors:
+  - OWASP Top 10: https://owasp.org/www-project-top-ten/
+  - NIST SP 800-53 Rev. 5: https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final
+  - Accuracy/FP/FN primer: https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall
+  - Latency and p95 background: https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/
+
+  Reproducibility Notes
+  - Measurement date: 2026-04-02
+  - Attack runs: 
+      local direct  : eval/results/attack_run_local_direct_1774697860.json
+      local proxy   : eval/results/attack_run_local_proxy_1774697881.json
+      github direct : eval/results/attack_run_github_direct_1775142583.json
+      github proxy  : eval/results/attack_run_github_proxy_1775142751.json
+  - Benign runs:
+      local         : eval/results/benign_test_1774697394.json
+      github        : eval/results/benign_test_1774694873.json
+  - Latency runs:
+      local         : eval/results/latency_benchmark_1774698767.json
+      github        : eval/results/latency_benchmark_github_1775061888.json
+  - Command set used for final campaign:
+      python3 eval/attack_runner.py local_direct
+      python3 eval/attack_runner.py local_proxy
+      python3 eval/attack_runner.py github_direct
+      python3 eval/attack_runner.py github_proxy
+      python3 eval/benign_test.py 100
+      python3 eval/latency_benchmark.py 30
+      python3 eval/latency_benchmark_github.py 20
