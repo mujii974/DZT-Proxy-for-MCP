@@ -10,9 +10,9 @@ MCP (Model Context Protocol) tool call using **decentralized identity (DIDs)**,
 
 ```
 ┌──────────┐     JWT + Request     ┌───────────┐     Verified Request    ┌────────────┐
-│ MCP      │ ──────────────────►  │ DZT Proxy │ ──────────────────────► │ MCP Server │
-│ Client   │                      │ (FastAPI)  │                        │ (GitHub/   │
-│ (Agent)  │ ◄──────────────────  │           │ ◄────────────────────── │  Local)    │
+│ MCP      │ ──────────────────►   │ DZT Proxy │ ──────────────────────► │ MCP Server │
+│ Client   │                       │ (FastAPI) │                         │ (GitHub/   │
+│ (Agent)  │ ◄──────────────────   │           │ ◄────────────────────── │  Local)    │
 └──────────┘     Response          └───────────┘     Response            └────────────┘
                                         │
                                   8-Step Verification:
