@@ -1,5 +1,7 @@
 # Decentralized Zero-Trust (DZT) Proxy for MCP
 
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 A security proxy that enforces continuous cryptographic verification on every
 MCP (Model Context Protocol) tool call using **decentralized identity (DIDs)**,
 **per-message JWT signing**, and **real-time policy enforcement**.
